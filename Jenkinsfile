@@ -14,7 +14,7 @@ pipeline {
     parameters {
         gitParameter branch: '',
                     branchFilter: '.*',
-                    defaultValue: 'origin/main',
+                    defaultValue: 'main',
                     description: '', listSize: '0',
                     name: 'TAG',
                     quickFilterEnabled: false,
