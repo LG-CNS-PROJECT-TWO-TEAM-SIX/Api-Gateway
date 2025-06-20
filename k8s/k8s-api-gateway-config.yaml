@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+data:
+  application-dev.yml: |
+    server:
+      port: 8080
+
+    spring:
+      cloud:
+        gateway:
+          mvc:
+            routes:
+              - id: backend-user
+                uri: http://k8s-backend-user-service:8080
+                predicates:
+                  - Path=/api/user/**
+              - id: backend-alim
+                uri: http://k8s-backend-alim-service:8080
+                predicates:
+                  - Path=/api/alim/**
+              - id: backend-post
+                uri: http://k8s-backend-post-service:8080
+                predicates:
+                  - Path=/api/post/**

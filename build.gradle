@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.team6'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
 	toolchain {
@@ -46,4 +46,17 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+jar {
+	enabled = false // plain.jar 생성 완전히 비활성화
+}
+tasks.register('getAppName') {
+	doLast {
+		println "${rootProject.name}"
+	}
+}
+tasks.register('getAppVersion') {
+	doLast {
+		println "${project.version}"
+	}
 }
