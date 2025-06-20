@@ -18,7 +18,8 @@ public class GatewayRequestHeaderUtils {
         return userId;
     }
     public static String getClientDevice() {
-        String clientDevice = getRequestHeaderParamAsString("X-Client-Device");if (clientDevice == null) {
+        String clientDevice = getRequestHeaderParamAsString("X-Client-Device");
+        if (clientDevice == null) {
             return null;
         }
         return clientDevice;
