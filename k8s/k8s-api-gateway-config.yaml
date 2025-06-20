@@ -13,14 +13,20 @@ data:
           mvc:
             routes:
               - id: backend-user
-                uri: http://k8s-backend-user-service:8080
+                uri: http://backend-user-service:8080
                 predicates:
                   - Path=/api/user/**
+                filters:
+                  - AddAuthenticationHeader
               - id: backend-alim
-                uri: http://k8s-backend-alim-service:8080
+                uri: http://backend-alim-service:8080
                 predicates:
                   - Path=/api/alim/**
-              - id: backend-post
-                uri: http://k8s-backend-post-service:8080
+                filters:
+                  - AddAuthenticationHeader
+              - id: backend-news
+                uri: http://backend-news-service:8080
                 predicates:
-                  - Path=/api/post/**
+                  - Path=/api/news/**
+                filters:
+                  - AddAuthenticationHeader

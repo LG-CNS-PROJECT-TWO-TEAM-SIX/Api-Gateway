@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-gateway-deployment
+  annotations:
+    reloader.skakater.com/auto: "true"
 spec:
   replicas: 3  # 원하는 파드 복제본 수 (기본값: 1)
   selector:
@@ -36,13 +38,19 @@ spec:
 #          periodSeconds: 5          # 5초마다 체크
 #          failureThreshold: 3       # 3회 연속 실패 시 서비스 트래픽 중지
 #          timeoutSeconds: 3         # 3초 내 응답 필요
-#        volumeMounts:
-#          - mountPath: /etc/config
-#            name: api-gateway-config-volume
-#      volumes:
-#        - name: api-gateway-config-volume
-#          configMap:
-#            name: api-gateway-config
-#            items:
-#              - key: application-dev.yml
-#                path: application-dev.yml
+        volumeMounts:
+          - mountPath: /etc/config
+            name: api-gateway-config-volume
+      volumes:
+        - name: api-gateway-config-volume
+          configMap:
+            name: api-gateway-config
+            items:
+              - key: application-dev.yml
+                path: application-dev.yml
+        - name: api-gateway-secret-volume
+          Secret:
+            secretName: api-gateway-secret
+            items:
+              - key: application-secret.yml
+                path: application-secret.yml

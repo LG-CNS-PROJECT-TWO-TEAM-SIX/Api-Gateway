@@ -7,6 +7,7 @@ import com.team6.api_gateway.common.exception.NotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -48,6 +49,14 @@ public class ApiCommonAdvice {
         return ApiResponseDto.createError(
                 "ServerError", "서버 에러입니다."
         );
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler({InsufficientAuthenticationException.class})
+    public ApiResponseDto<String> handleInsufficientAuthenticationException(
+            InsufficientAuthenticationException e) {
+        return ApiResponseDto.createError(
+                "Unauthenticated", "인증되지 않았습니다.");
     }
 }
 
