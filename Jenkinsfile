@@ -89,9 +89,9 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            when {
-                expression { PROD_BUILD || TAG_BUILD }
-            }
+//             when {
+//                 expression { PROD_BUILD || TAG_BUILD }
+//             }
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE_NAME}")
@@ -100,9 +100,9 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-            when {
-                expression { PROD_BUILD || TAG_BUILD }
-            }
+//             when {
+//                 expression { PROD_BUILD || TAG_BUILD }
+//             }
             steps {
                 script {
                     docker.withRegistry("", DOCKERHUB_CREDENTIAL) {
