@@ -1,9 +1,11 @@
 #!/usr/bin/env groovy
+
 def APP_NAME
 def APP_VERSION
 def DOCKER_IMAGE_NAME
 def PROD_BUILD = false
 def TAG_BUILD = false
+
 pipeline {
     agent {
         node {
@@ -12,27 +14,34 @@ pipeline {
     }
 
     parameters {
-        gitParameter branch: '',
-                    branchFilter: '.*',
-                    defaultValue: 'origin/main',
-                    description: '', listSize: '0',
-                    name: 'TAG',
-                    quickFilterEnabled: false,
-                    selectedValue: 'DEFAULT',
-                    sortMode: 'DESCENDING_SMART',
-                    tagFilter: '*',
-                    type: 'PT_BRANCH_TAG'
+        gitParameter(
+            name: 'TAG',
+            type: 'PT_BRANCH_TAG',
+            defaultValue: 'origin/main',
+            branch: '',
+            branchFilter: '.*',
+            tagFilter: '*',
+            description: '',
+            listSize: '0',
+            quickFilterEnabled: false,
+            selectedValue: 'DEFAULT',
+            sortMode: 'DESCENDING_SMART'
+        )
 
-        booleanParam defaultValue: false, description: '', name: 'RELEASE'
+        booleanParam(
+            name: 'RELEASE',
+            defaultValue: false,
+            description: ''
+        )
     }
 
     environment {
-        GIT_URL = "https://github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/Api-Gateway.git"
-        GITHUB_CREDENTIAL = "github-token"
-        ARTIFACTS = "build/libs/**"
-        DOCKER_REGISTRY = "rnals12"
-        DOCKERHUB_CREDENTIAL = 'dockerhub-token'
-        DISCORD_WEBHOOK="https://discord.com/api/webhooks/1386572756358791168/sAQu_esRsWKDccimDKVALESFvyMvRW-KaiLYERTnAYtfwEh24ZCY_aazvIFf14wh81bP"
+        GIT_URL             = "https://github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/Api-Gateway.git"
+        GITHUB_CREDENTIAL   = "github-token"
+        ARTIFACTS           = "build/libs/**"
+        DOCKER_REGISTRY     = "rnals12"
+        DOCKERHUB_CREDENTIAL= "dockerhub-token"
+        DISCORD_WEBHOOK     = "https://discord.com/api/webhooks/1386572756358791168/sAQu_esRsWKDccimDKVALESFvyMvRW-KaiLYERTnAYtfwEh24ZCY_aazvIFf14wh81bP"
     }
 
     options {
@@ -51,24 +60,17 @@ pipeline {
         stage('Set Version') {
             steps {
                 script {
-                    APP_NAME = sh (
-                            script: "gradle -q getAppName",
-                            returnStdout: true
-                    ).trim()
-                    APP_VERSION = sh (
-                            script: "gradle -q getAppVersion",
-                            returnStdout: true
-                    ).trim()
-
+                    APP_NAME = sh(script: "gradle -q getAppName", returnStdout: true).trim()
+                    APP_VERSION = sh(script: "gradle -q getAppVersion", returnStdout: true).trim()
                     DOCKER_IMAGE_NAME = "${DOCKER_REGISTRY}/${APP_NAME}:${APP_VERSION}"
 
-                    sh "echo IMAGE_NAME is ${APP_NAME}"
-                    sh "echo IMAGE_VERSION is ${APP_VERSION}"
-                    sh "echo DOCKER_IMAGE_NAME is ${DOCKER_IMAGE_NAME}"
+                    echo "📦 APP_NAME: ${APP_NAME}"
+                    echo "🧾 APP_VERSION: ${APP_VERSION}"
+                    echo "🐳 DOCKER_IMAGE_NAME: ${DOCKER_IMAGE_NAME}"
+                    echo "🏷️ TAG: ${params.TAG}"
 
-                    sh "echo TAG is ${params.TAG}"
-                    if( params.TAG.startsWith('origin') == false && params.TAG.endsWith('/main') == false ) {
-                        if( params.RELEASE == true ) {
+                    if (!params.TAG.startsWith('origin') && !params.TAG.endsWith('/main')) {
+                        if (params.RELEASE) {
                             DOCKER_IMAGE_NAME += '-RELEASE'
                             PROD_BUILD = true
                         } else {
@@ -87,50 +89,50 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-//             when {
-//                 expression { PROD_BUILD == true || TAG_BUILD == true }
-//             }
+            when {
+                expression { PROD_BUILD || TAG_BUILD }
+            }
             steps {
                 script {
-                    docker.build "${DOCKER_IMAGE_NAME}"
+                    docker.build("${DOCKER_IMAGE_NAME}")
                 }
             }
         }
 
         stage('Push Docker Image') {
-//             when {
-//                 expression { PROD_BUILD == true || TAG_BUILD == true }
-//             }
+            when {
+                expression { PROD_BUILD || TAG_BUILD }
+            }
             steps {
                 script {
                     docker.withRegistry("", DOCKERHUB_CREDENTIAL) {
                         docker.image("${DOCKER_IMAGE_NAME}").push()
                     }
-
-                    sh "docker rmi ${DOCKER_IMAGE_NAME}"
+                    sh "docker rmi ${DOCKER_IMAGE_NAME} || true"
                 }
             }
         }
     }
-    post {
-                success {
-                    echo '✅ 빌드 성공!'
-                    sh """
-                        curl -H "Content-Type: application/json" \\
-                             -X POST \\
-                             -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
-                             $DISCORD_WEBHOOK
-                    """
-                }
 
-                failure {
-                    echo '❌ 빌드 실패...'
-                    sh """
-                        curl -H "Content-Type: application/json" \\
-                             -X POST \\
-                             -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
-                             $DISCORD_WEBHOOK
-                    """
-                }
-            }
+    post {
+        success {
+            echo '✅ 빌드 성공!'
+            sh """
+                curl -H "Content-Type: application/json" \\
+                     -X POST \\
+                     -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
+                     ${DISCORD_WEBHOOK}
+            """
+        }
+
+        failure {
+            echo '❌ 빌드 실패...'
+            sh """
+                curl -H "Content-Type: application/json" \\
+                     -X POST \\
+                     -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
+                     ${DISCORD_WEBHOOK}
+            """
+        }
+    }
 }
