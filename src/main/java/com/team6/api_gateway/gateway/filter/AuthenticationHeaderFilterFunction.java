@@ -14,10 +14,10 @@ class AuthenticationHeaderFilterFunction {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (principal instanceof UserPrincipal userPrincipal) {
                 requestBuilder.header("X-Auth-UserId", userPrincipal.getUserId());
-// 필요시 권한 정보 입력
-// requestBuilder.header("X-Auth-Authorities", ...);
+            // 필요시 권한 정보 입력
+            // requestBuilder.header("X-Auth-Authorities", ...);
             }
-// String remoteAddr = HttpUtils.getRemoteAddr(requestBuildert.servletRequest());
+            // String remoteAddr = HttpUtils.getRemoteAddr(requestBuildert.servletRequest());
             String remoteAddr = "70.1.23.15";
             requestBuilder.header("X-Client-Address", remoteAddr);
             String device = "WEB";

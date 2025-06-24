@@ -12,19 +12,19 @@ data:
           mvc:
             routes:
               - id: backend-user
-                uri: http://backend-user-service:8080
+                uri: http://user-service:8080
                 predicates:
                   - Path=/api/user/**
                 filters:
                   - AddAuthenticationHeader
               - id: backend-alim
-                uri: http://backend-alim-service:8080
+                uri: http://alim-service:8080
                 predicates:
                   - Path=/api/alim/**
                 filters:
                   - AddAuthenticationHeader
               - id: backend-news
-                uri: http://backend-news-service:8080
+                uri: http://news-service:8080
                 predicates:
                   - Path=/api/news/**
                 filters:
