@@ -142,31 +142,31 @@ pipeline {
 
     }
 
-//     post {
-//         success {
-//             script {
-//                 withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-//                     sh """
-//                         curl -H "Content-Type: application/json" \\
-//                              -X POST \\
-//                              -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
-//                              "\$DISCORD_WEBHOOK"
-//                     """
-//                 }
-//             }
-//         }
-//
-//         failure {
-//             script {
-//                 withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-//                     sh """
-//                         curl -H "Content-Type: application/json" \\
-//                              -X POST \\
-//                              -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
-//                              "\$DISCORD_WEBHOOK"
-//                     """
-//                 }
-//             }
-//         }
-//     }
+    post {
+        success {
+            script {
+                withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+                    sh """
+                        curl -H "Content-Type: application/json" \\
+                             -X POST \\
+                             -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
+                             "\$DISCORD_WEBHOOK"
+                    """
+                }
+            }
+        }
+
+        failure {
+            script {
+                withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+                    sh """
+                        curl -H "Content-Type: application/json" \\
+                             -X POST \\
+                             -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
+                             "\$DISCORD_WEBHOOK"
+                    """
+                }
+            }
+        }
+    }
 }
