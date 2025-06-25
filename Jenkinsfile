@@ -130,7 +130,7 @@ pipeline {
                     git config user.email "ku0620@naver.com"
                     git add ${IMAGE_UPDATE_PATH}
                     git commit -m "[ci] Update ${APP_NAME} image to ${APP_VERSION}"
-                    git push origin main
+                    git push https://${GITHUB_CREDENTIAL}@github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git HEAD:main
                     """
                 }
             }
