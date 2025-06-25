@@ -117,6 +117,7 @@ pipeline {
                 }
             }
         }
+
         stage('Update GitOps Repository') {
             steps {
                 script {
@@ -124,7 +125,7 @@ pipeline {
                     rm -rf ${GITOPS_LOCAL_DIR}
                     git clone ${GITOPS_REPO} ${GITOPS_LOCAL_DIR}
                     cd ${GITOPS_LOCAL_DIR}
-                    yq eval '.spec.template.spec.containers[0].image = "${DOCKER_IMAGE_NAME}"' -i ${IMAGE_UPDATE_PATH}
+                    sed -i "s|image: .*|image: ${DOCKER_IMAGE_NAME}|" ${IMAGE_UPDATE_PATH}
                     git config user.name "ku0629"
                     git config user.email "ku0620@naver.com"
                     git add ${IMAGE_UPDATE_PATH}
@@ -137,31 +138,31 @@ pipeline {
 
     }
 
-    post {
-        success {
-            script {
-                withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-                    sh """
-                        curl -H "Content-Type: application/json" \\
-                             -X POST \\
-                             -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
-                             "\$DISCORD_WEBHOOK"
-                    """
-                }
-            }
-        }
-
-        failure {
-            script {
-                withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-                    sh """
-                        curl -H "Content-Type: application/json" \\
-                             -X POST \\
-                             -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
-                             "\$DISCORD_WEBHOOK"
-                    """
-                }
-            }
-        }
-    }
+//     post {
+//         success {
+//             script {
+//                 withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+//                     sh """
+//                         curl -H "Content-Type: application/json" \\
+//                              -X POST \\
+//                              -d '{"content": "✅ [빌드 성공]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}\\n- 이미지: ${DOCKER_IMAGE_NAME}"}' \\
+//                              "\$DISCORD_WEBHOOK"
+//                     """
+//                 }
+//             }
+//         }
+//
+//         failure {
+//             script {
+//                 withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+//                     sh """
+//                         curl -H "Content-Type: application/json" \\
+//                              -X POST \\
+//                              -d '{"content": "❌ [빌드 실패]\\n- 프로젝트: ${APP_NAME}\\n- 태그: ${params.TAG}"}' \\
+//                              "\$DISCORD_WEBHOOK"
+//                     """
+//                 }
+//             }
+//         }
+//     }
 }
