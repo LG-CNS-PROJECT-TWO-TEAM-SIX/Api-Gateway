@@ -47,6 +47,7 @@
                                     .accessDeniedHandler(accessDeniedHandler))
                     .authorizeHttpRequests(registry -> registry
                             .requestMatchers("/api/user/v1/auth/**").permitAll()
+                            .requestMatchers("/api/alim/message").permitAll() // ✅ SSE 허용
                             .anyRequest().authenticated()
                     );
             return http.build();
