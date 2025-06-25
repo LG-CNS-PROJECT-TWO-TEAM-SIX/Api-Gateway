@@ -121,17 +121,19 @@ pipeline {
         stage('Update GitOps Repository') {
             steps {
                 script {
-                    sh """
-                    rm -rf ${GITOPS_LOCAL_DIR}
-                    git clone ${GITOPS_REPO} ${GITOPS_LOCAL_DIR}
-                    cd ${GITOPS_LOCAL_DIR}
-                    sed -i "s|image: .*|image: ${DOCKER_IMAGE_NAME}|" ${IMAGE_UPDATE_PATH}
-                    git config user.name "ku0629"
-                    git config user.email "ku0620@naver.com"
-                    git add ${IMAGE_UPDATE_PATH}
-                    git commit -m "[ci] Update ${APP_NAME} image to ${APP_VERSION}"
-                    git push https://${GITHUB_CREDENTIAL}@github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git HEAD:main
-                    """
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                          rm -rf k8s-app-config
+                          git clone https://${GITHUB_TOKEN}@github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git k8s-app-config
+                          cd k8s-app-config
+                          sed -i "s|image: .*|image: ${DOCKER_IMAGE_NAME}|" ${IMAGE_UPDATE_PATH}
+                          git config user.name "ku0629"
+                          git config user.email "ku0620@naver.com"
+                          git add ${IMAGE_UPDATE_PATH}
+                          git commit -m "[ci] Update ${APP_NAME} image to ${APP_VERSION}"
+                          git push https://${GITHUB_TOKEN}@github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git HEAD:main
+                        """
+                    }
                 }
             }
         }
