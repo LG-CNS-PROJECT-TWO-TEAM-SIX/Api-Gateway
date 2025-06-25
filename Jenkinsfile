@@ -5,6 +5,9 @@ def APP_VERSION
 def DOCKER_IMAGE_NAME
 def PROD_BUILD = false
 def TAG_BUILD = false
+def GITOPS_REPO = "https://github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git"
+def GITOPS_LOCAL_DIR = "k8s-app-config"
+def IMAGE_UPDATE_PATH = ""
 
 pipeline {
     agent {
@@ -78,6 +81,8 @@ pipeline {
                             TAG_BUILD = true
                         }
                     }
+                    // GitOps 경로 설정
+                    IMAGE_UPDATE_PATH = "${APP_NAME}/prd/k8s-${APP_NAME}-deploy.yaml"
                 }
             }
         }
@@ -112,6 +117,24 @@ pipeline {
                 }
             }
         }
+        stage('Update GitOps Repository') {
+            steps {
+                script {
+                    sh """
+                    rm -rf ${GITOPS_LOCAL_DIR}
+                    git clone ${GITOPS_REPO} ${GITOPS_LOCAL_DIR}
+                    cd ${GITOPS_LOCAL_DIR}
+                    yq eval '.spec.template.spec.containers[0].image = "${DOCKER_IMAGE_NAME}"' -i ${IMAGE_UPDATE_PATH}
+                    git config user.name "ku0629"
+                    git config user.email "ku0620@naver.com"
+                    git add ${IMAGE_UPDATE_PATH}
+                    git commit -m "[ci] Update ${APP_NAME} image to ${APP_VERSION}"
+                    git push origin main
+                    """
+                }
+            }
+        }
+
     }
 
     post {

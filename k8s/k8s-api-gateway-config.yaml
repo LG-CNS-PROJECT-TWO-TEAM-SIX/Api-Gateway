@@ -6,8 +6,13 @@ data:
   application-dev.yml: |
     server:
       port: 8080
+    eureka:
+      client:
+        enabled: false
     spring:
       cloud:
+        discovery:
+          enabled: false
         gateway:
           mvc:
             routes:
