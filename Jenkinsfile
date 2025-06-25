@@ -123,7 +123,7 @@ pipeline {
                 script {
                     sh """
                       rm -rf k8s-app-config
-                      git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git k8s-app-config
+                      git clone https://github.com/LG-CNS-PROJECT-TWO-TEAM-SIX/k8s-app-config.git k8s-app-config
                       cd k8s-app-config
                       sed -i "s|image: .*|image: ${DOCKER_IMAGE_NAME}|" ${IMAGE_UPDATE_PATH}
                       git config user.name "ku0629"
